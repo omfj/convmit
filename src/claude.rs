@@ -60,11 +60,39 @@ impl ClaudeClient {
 
     pub async fn generate_commit_message(&self, files: &[String], diff: &str) -> Result<String> {
         let prompt = format!(
-            "Based on the following staged files and git diff, generate a conventional commit message. \
-            Follow the format: type(scope): description\n\
-            Common types: feat, fix, docs, style, refactor, test, chore\n\
-            Keep the description concise and under 50 characters.\n\
-            Only return the commit message, nothing else.\n\n\
+            "Generate a conventional commit message based on the staged files and git diff below.\n\n\
+            FORMAT: type(scope): description\n\
+            - Use lowercase for type and description\n\
+            - Scope is optional but recommended (file/module/feature affected)\n\
+            - Description should be 50-72 characters, imperative mood\n\
+            - Add '!' after type for breaking changes\n\n\
+            COMMIT TYPES:\n\
+            - feat: new feature or enhancement\n\
+            - fix: bug fix or error correction\n\
+            - docs: documentation changes only\n\
+            - style: formatting, whitespace (no logic changes)\n\
+            - refactor: code restructuring (no feature/bug changes)\n\
+            - test: adding or updating tests\n\
+            - chore: maintenance, deps, config, build\n\
+            - perf: performance improvements\n\
+            - ci: CI/CD pipeline changes\n\n\
+            SCOPE GUIDELINES:\n\
+            - Use filename/module for single file changes\n\
+            - Use feature name for multi-file features\n\
+            - Use 'readme' for README changes\n\
+            - Omit scope for broad changes\n\n\
+            EXAMPLES:\n\
+            - feat(auth): add OAuth2 login support\n\
+            - fix(parser): handle empty input correctly\n\
+            - docs(readme): update installation instructions\n\
+            - refactor(claude.rs): implement ToString for Model enum\n\
+            - style: format code with rustfmt\n\
+            - chore(deps): update reqwest to 0.11\n\n\
+            INSTRUCTIONS:\n\
+            - Analyze the changes to determine the most appropriate type\n\
+            - Look for breaking changes (API changes, removed features)\n\
+            - Focus on the 'why' not the 'what' in the description\n\
+            - Return ONLY the commit message, no explanations\n\n\
             Staged files:\n{}\n\n\
             Git diff:\n{}",
             files.join("\n"),
