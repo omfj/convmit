@@ -55,4 +55,7 @@ Available models: `opus-4-1`, `opus-4`, `sonnet-4`, `sonnet-3-7`, `haiku-3-5`, `
 
 ## Configuration
 
-Config is stored at `~/.config/convmit/config.toml`
+Config is stored at:
+
+- **macOS** - `~/Library/Application Support/convmit/config.toml`
+- **Linux** - `~/.config/convmit/config.toml`
