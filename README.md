@@ -25,17 +25,23 @@ Get an API key at: https://console.anthropic.com/settings/keys
 First, stage the changes you want to commit. Then run `convmit` to generate a conventional commit message based on the changes you want to commit.
 
 ```bash
-convmit
+$ convmit
+Generated commit message: refactor(code): Improve model display and code formatting
+✓ Committed with generated message
 ```
 
 ### Generate message only (no commit)
+
 ```bash
 convmit --no-commit
+Generated commit message: refactor(code): Improve model display and code formatting
 ```
 
 ### Specify a different model
+
 ```bash
 convmit --model sonnet-4
+Generated commit message: refactor(code): Improve model display and code formatting
 ```
 
 Available models: `opus-4-1`, `opus-4`, `sonnet-4`, `sonnet-3-7`, `haiku-3-5`, `haiku-3`
@@ -50,4 +56,3 @@ Available models: `opus-4-1`, `opus-4`, `sonnet-4`, `sonnet-3-7`, `haiku-3-5`, `
 ## Configuration
 
 Config is stored at `~/.config/convmit/config.toml`
-
