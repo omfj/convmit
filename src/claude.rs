@@ -13,15 +13,15 @@ pub enum Model {
     Haiku3,
 }
 
-impl Model {
-    pub fn as_str(&self) -> &'static str {
+impl ToString for Model {
+    fn to_string(&self) -> String {
         match self {
-            Model::Opus4_1 => "claude-opus-4-1-20250805",
-            Model::Opus4 => "claude-opus-4-20250514",
-            Model::Sonnet4 => "claude-sonnet-4-20250514",
-            Model::Sonnet3_7 => "claude-3-7-sonnet-20250219",
-            Model::Haiku3_5 => "claude-3-5-haiku-20241022",
-            Model::Haiku3 => "claude-3-haiku-20240307",
+            Model::Opus4_1 => "claude-opus-4-1-20250805".to_string(),
+            Model::Opus4 => "claude-opus-4-20250514".to_string(),
+            Model::Sonnet4 => "claude-sonnet-4-20250514".to_string(),
+            Model::Sonnet3_7 => "claude-3-7-sonnet-20250219".to_string(),
+            Model::Haiku3_5 => "claude-3-5-haiku-20241022".to_string(),
+            Model::Haiku3 => "claude-3-haiku-20240307".to_string(),
         }
     }
 }
@@ -71,7 +71,7 @@ impl ClaudeClient {
         );
 
         let request = ClaudeRequest {
-            model: self.model.as_str().to_string(),
+            model: self.model.to_string(),
             max_tokens: 1024,
             messages: vec![Message {
                 role: "user".to_string(),
@@ -93,7 +93,10 @@ impl ClaudeClient {
             let status = response.status();
             let error_text = response.text().await?;
             if let Ok(error_response) = serde_json::from_str::<ErrorResponse>(&error_text) {
-                return Err(anyhow::anyhow!("Claude API error: {}", error_response.error.message));
+                return Err(anyhow::anyhow!(
+                    "Claude API error: {}",
+                    error_response.error.message
+                ));
             } else {
                 return Err(anyhow::anyhow!("HTTP error {}: {}", status, error_text));
             }
