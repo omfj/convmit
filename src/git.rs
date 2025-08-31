@@ -38,7 +38,7 @@ impl Git {
 
         if !output.status.success() {
             let error = String::from_utf8_lossy(&output.stderr);
-            return Err(format!("Failed to commit: {}", error).into());
+            return Err(format!("Failed to commit: {error}").into());
         }
 
         Ok(())

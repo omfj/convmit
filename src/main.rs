@@ -40,12 +40,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .generate_commit_message(&staged_files, &diff)
         .await?;
 
-    println!("{} {}", "Generated commit message:".blue().bold(), commit_message.cyan());
-    
+    println!(
+        "{} {}",
+        "Generated commit message:".blue().bold(),
+        commit_message.cyan()
+    );
+
     if cli.commit {
         Git::commit(&commit_message)?;
         println!("{}", "✓ Committed with generated message".green().bold());
     }
-    
+
     Ok(())
 }

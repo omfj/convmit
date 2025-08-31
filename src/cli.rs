@@ -13,6 +13,11 @@ pub struct Cli {
         help = "Specify the Claude model to use (e.g., opus4, sonnet4, haiku3)"
     )]
     pub model: Option<claude::Model>,
-    #[arg(short, long, help = "Automatically commit with the generated message", default_value = "true")]
+    #[arg(
+        short,
+        long,
+        help = "Automatically commit with the generated message",
+        default_value = "true"
+    )]
     pub commit: bool,
 }

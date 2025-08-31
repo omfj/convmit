@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use crate::models::{ClaudeRequest, ClaudeResponse, ErrorResponse, Message};
 use anyhow::Result;
@@ -13,16 +13,17 @@ pub enum Model {
     Haiku3,
 }
 
-impl ToString for Model {
-    fn to_string(&self) -> String {
-        match self {
-            Model::Opus4_1 => "claude-opus-4-1-20250805".to_string(),
-            Model::Opus4 => "claude-opus-4-20250514".to_string(),
-            Model::Sonnet4 => "claude-sonnet-4-20250514".to_string(),
-            Model::Sonnet3_7 => "claude-3-7-sonnet-20250219".to_string(),
-            Model::Haiku3_5 => "claude-3-5-haiku-20241022".to_string(),
-            Model::Haiku3 => "claude-3-haiku-20240307".to_string(),
-        }
+impl Display for Model {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let model_str = match self {
+            Model::Opus4_1 => "claude-opus-4-1-20250805",
+            Model::Opus4 => "claude-opus-4-20250514",
+            Model::Sonnet4 => "claude-sonnet-4-20250514",
+            Model::Sonnet3_7 => "claude-3-7-sonnet-20250219",
+            Model::Haiku3_5 => "claude-3-5-haiku-20241022",
+            Model::Haiku3 => "claude-3-haiku-20240307",
+        };
+        write!(f, "{}", model_str)
     }
 }
 
