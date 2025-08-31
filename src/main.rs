@@ -5,6 +5,7 @@ mod git;
 mod models;
 
 use clap::Parser;
+use colored::*;
 
 use crate::claude::ClaudeClient;
 use crate::cli::Cli;
@@ -18,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(api_key) = cli.set_api_key {
         config.set_api_key(api_key)?;
-        println!("API key saved to config");
+        println!("{}", "✓ API key saved to config".green());
         return Ok(());
     }
 
@@ -28,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let staged_files = Git::get_staged_files()?;
     if staged_files.is_empty() {
-        println!("No files staged for commit");
+        println!("{}", "ℹ No files staged for commit".yellow());
         return Ok(());
     }
 
@@ -39,11 +40,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .generate_commit_message(&staged_files, &diff)
         .await?;
 
-    println!("Generated commit message: {}", commit_message);
+    println!("{} {}", "Generated commit message:".blue().bold(), commit_message.cyan());
     
     if cli.commit {
         Git::commit(&commit_message)?;
-        println!("✓ Committed with message");
+        println!("{}", "✓ Committed with generated message".green().bold());
     }
     
     Ok(())
