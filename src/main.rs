@@ -29,15 +29,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let model = cli.model.unwrap_or(Model::Haiku3_5);
-    
+
     // Validate model configuration
     config.validate_model_config(&model)?;
-    
+
     // Get API key for the model
-    let api_key = config.get_api_key_for_model(&model)
-        .ok_or_else(|| {
-            anyhow::anyhow!("No API key found for model {}", model)
-        })?;
+    let api_key = config
+        .get_api_key_for_model(&model)
+        .ok_or_else(|| anyhow::anyhow!("No API key found for model {}", model))?;
 
     let diff = Git::get_staged_diff()?;
     let staged_files = Git::get_staged_files()?;
