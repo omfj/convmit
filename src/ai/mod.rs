@@ -101,6 +101,32 @@ impl FromStr for Model {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum Provider {
+    Claude { 
+        base_url: String,
+        version: String,
+    },
+    OpenAI { 
+        base_url: String,
+    },
+}
+
+impl Provider {
+    pub fn claude() -> Self {
+        Provider::Claude {
+            base_url: "https://api.anthropic.com/v1/messages".to_string(),
+            version: "2023-06-01".to_string(),
+        }
+    }
+
+    pub fn openai() -> Self {
+        Provider::OpenAI {
+            base_url: "https://api.openai.com/v1/chat/completions".to_string(),
+        }
+    }
+}
+
 impl Model {
     pub fn is_claude(&self) -> bool {
         matches!(
@@ -117,8 +143,29 @@ impl Model {
     pub fn is_openai(&self) -> bool {
         matches!(self, Model::GPT5 | Model::GPT5Mini | Model::GPT5Nano)
     }
+
+    pub fn provider(&self) -> Provider {
+        if self.is_claude() {
+            Provider::claude()
+        } else if self.is_openai() {
+            Provider::openai()
+        } else {
+            panic!("Unknown provider for model: {:?}", self)
+        }
+    }
 }
 
+pub fn create_client(model: Model, api_key: String) -> Box<dyn GenerateCommitMessage> {
+    if model.is_claude() {
+        Box::new(claude::Client::new(api_key, model))
+    } else if model.is_openai() {
+        Box::new(openai::Client::new(api_key, model))
+    } else {
+        panic!("Unsupported model: {:?}", model)
+    }
+}
+
+#[async_trait::async_trait]
 pub trait GenerateCommitMessage {
     async fn generate_commit_message(&self, files: &[String], diff: &str)
     -> anyhow::Result<String>;

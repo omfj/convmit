@@ -6,7 +6,7 @@ mod git;
 use clap::Parser;
 use colored::*;
 
-use crate::ai::{GenerateCommitMessage, Model, claude, openai};
+use crate::ai::{Model, create_client};
 use crate::cli::Cli;
 use crate::config::Config;
 use crate::git::Git;
@@ -29,20 +29,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let model = cli.model.unwrap_or(Model::Haiku3_5);
-    let api_key = if model.is_claude() {
-        config.get_claude_api_key()
-    } else if model.is_openai() {
-        config.get_openai_api_key()
-    } else {
-        None
-    }
-    .ok_or_else(|| {
-        if model.is_claude() {
-            "Claude API key not configured. Set with --set-claude-key or CLAUDE_API_KEY env var"
-        } else {
-            "OpenAI API key not configured. Set with --set-openai-key or OPENAI_API_KEY env var"
-        }
-    })?;
+    
+    // Validate model configuration
+    config.validate_model_config(&model)?;
+    
+    // Get API key for the model
+    let api_key = config.get_api_key_for_model(&model)
+        .ok_or_else(|| {
+            anyhow::anyhow!("No API key found for model {}", model)
+        })?;
 
     let diff = Git::get_staged_diff()?;
     let staged_files = Git::get_staged_files()?;
@@ -51,17 +46,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    let commit_message = if model.is_claude() {
-        claude::Client::new(api_key, model)
-            .generate_commit_message(&staged_files, &diff)
-            .await?
-    } else if model.is_openai() {
-        openai::Client::new(api_key, model)
-            .generate_commit_message(&staged_files, &diff)
-            .await?
-    } else {
-        return Err("Unsupported model".into());
-    };
+    // Create client using factory pattern
+    let client = create_client(model, api_key);
+    let commit_message = client.generate_commit_message(&staged_files, &diff).await?;
 
     println!(
         "{} {}",

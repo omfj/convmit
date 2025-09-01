@@ -60,4 +60,26 @@ impl Config {
         self.openai_api_key = Some(key);
         self.save()
     }
+
+    pub fn validate_model_config(&self, model: &crate::ai::Model) -> Result<()> {
+        match model {
+            m if m.is_claude() && self.get_claude_api_key().is_none() => {
+                Err(anyhow::anyhow!("Claude API key required for {}. Set with --set-claude-key or CLAUDE_API_KEY env var", model))
+            },
+            m if m.is_openai() && self.get_openai_api_key().is_none() => {
+                Err(anyhow::anyhow!("OpenAI API key required for {}. Set with --set-openai-key or OPENAI_API_KEY env var", model))
+            },
+            _ => Ok(())
+        }
+    }
+
+    pub fn get_api_key_for_model(&self, model: &crate::ai::Model) -> Option<String> {
+        if model.is_claude() {
+            self.get_claude_api_key()
+        } else if model.is_openai() {
+            self.get_openai_api_key()
+        } else {
+            None
+        }
+    }
 }

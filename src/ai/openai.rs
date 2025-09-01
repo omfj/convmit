@@ -53,6 +53,7 @@ impl Client {
     }
 }
 
+#[async_trait::async_trait]
 impl GenerateCommitMessage for Client {
     async fn generate_commit_message(
         &self,
