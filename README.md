@@ -10,10 +10,19 @@ just install
 
 ## Setup
 
-First, set your Anthropic API key:
+First, set your Anthropic API key or OpenAI API key:
+
+You can find them at:
+
+- Claude, https://console.anthropic.com/settings/keys
+- OpenAI, https://platform.openai.com/api-keys
 
 ```bash
-convmit --set-api-key "your-api-key-here"
+# For Claude models
+convmit --set-claude-key "your-api-key-here"
+
+# For OpenAI models
+convmit --set-openai-key "your-api-key-here"
 ```
 
 Get an API key at: https://console.anthropic.com/settings/keys
@@ -44,7 +53,7 @@ convmit --model sonnet-4
 Generated commit message: refactor(code): Improve model display and code formatting
 ```
 
-Available models: `opus-4-1`, `opus-4`, `sonnet-4`, `sonnet-3-7`, `haiku-3-5`, `haiku-3`
+See `convmit --help` for all the models.
 
 ## How it works
 
