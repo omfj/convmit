@@ -1,12 +1,12 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Config {
-    pub api_key: Option<String>,
+    pub claude_api_key: Option<String>,
+    pub openai_api_key: Option<String>,
 }
 
 impl Config {
@@ -39,14 +39,25 @@ impl Config {
         Ok(())
     }
 
-    pub fn set_api_key(&mut self, api_key: String) -> Result<()> {
-        self.api_key = Some(api_key);
+    pub fn get_claude_api_key(&self) -> Option<String> {
+        self.claude_api_key
+            .clone()
+            .or(std::env::var("CLAUDE_API_KEY").ok())
+    }
+
+    pub fn set_claude_api_key(&mut self, key: String) -> Result<()> {
+        self.claude_api_key = Some(key);
         self.save()
     }
 
-    pub fn get_api_key(&self) -> Option<String> {
-        self.api_key
+    pub fn get_openai_api_key(&self) -> Option<String> {
+        self.openai_api_key
             .clone()
-            .or_else(|| env::var("ANTHROPIC_API_KEY").ok())
+            .or(std::env::var("OPENAI_API_KEY").ok())
+    }
+
+    pub fn set_openai_api_key(&mut self, key: String) -> Result<()> {
+        self.openai_api_key = Some(key);
+        self.save()
     }
 }
