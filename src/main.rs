@@ -1,15 +1,10 @@
-mod ai;
-mod cli;
-mod config;
-mod git;
-
 use clap::Parser;
 use colored::*;
 
-use crate::ai::{Model, create_client};
-use crate::cli::Cli;
-use crate::config::Config;
-use crate::git::Git;
+use convmit::ai::{Model, create_client};
+use convmit::cli::Cli;
+use convmit::config::Config;
+use convmit::git::Git;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

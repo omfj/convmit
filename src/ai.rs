@@ -1,7 +1,7 @@
 use std::{fmt::Display, str::FromStr};
 
-pub mod claude;
-pub mod openai;
+mod claude;
+mod openai;
 
 pub const BASE_PROMPT: &str = r#"Generate a conventional commit message based on the staged files and git diff below.
 
