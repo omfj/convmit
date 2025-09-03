@@ -1,5 +1,7 @@
 use std::{fmt::Display, str::FromStr};
 
+use serde::{Deserialize, Serialize};
+
 mod claude;
 mod openai;
 
@@ -52,7 +54,7 @@ pub fn build_prompt(files: &[String], diff: &str) -> String {
     )
 }
 
-#[derive(Debug, Clone, clap::ValueEnum)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, clap::ValueEnum)]
 pub enum Model {
     Opus4_1,
     Opus4,

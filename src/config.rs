@@ -3,10 +3,21 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub claude_api_key: Option<String>,
     pub openai_api_key: Option<String>,
+    pub default_model: Option<crate::ai::Model>,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            claude_api_key: None,
+            openai_api_key: None,
+            default_model: Some(crate::ai::Model::Haiku3_5),
+        }
+    }
 }
 
 impl Config {
@@ -84,6 +95,15 @@ impl Config {
             None
         }
     }
+
+    pub fn get_default_model(&self) -> crate::ai::Model {
+        self.default_model.clone().unwrap_or(crate::ai::Model::Haiku3_5)
+    }
+
+    pub fn set_default_model(&mut self, model: crate::ai::Model) -> Result<()> {
+        self.default_model = Some(model);
+        self.save()
+    }
 }
 
 #[cfg(test)]
@@ -95,6 +115,7 @@ mod tests {
         Config {
             claude_api_key: Some("test-claude-key".to_string()),
             openai_api_key: Some("test-openai-key".to_string()),
+            default_model: Some(Model::Sonnet4),
         }
     }
 
@@ -102,6 +123,7 @@ mod tests {
         Config {
             claude_api_key: None,
             openai_api_key: None,
+            default_model: None,
         }
     }
 
@@ -273,11 +295,13 @@ mod tests {
         let claude_only_config = Config {
             claude_api_key: Some("claude-key".to_string()),
             openai_api_key: None,
+            default_model: None,
         };
 
         let openai_only_config = Config {
             claude_api_key: None,
             openai_api_key: Some("openai-key".to_string()),
+            default_model: None,
         };
 
         // Claude-only config
@@ -303,5 +327,23 @@ mod tests {
                 .validate_model_config(&Model::GPT5)
                 .is_ok()
         );
+    }
+
+    #[test]
+    fn test_get_default_model() {
+        let config = create_test_config();
+        assert_eq!(config.get_default_model(), Model::Sonnet4);
+    }
+
+    #[test]
+    fn test_get_default_model_fallback() {
+        let config = create_empty_config();
+        assert_eq!(config.get_default_model(), Model::Haiku3_5);
+    }
+
+    #[test]
+    fn test_get_default_model_with_default() {
+        let config = Config::default();
+        assert_eq!(config.get_default_model(), Model::Haiku3_5);
     }
 }

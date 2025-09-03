@@ -1,7 +1,7 @@
 use clap::Parser;
 use colored::*;
 
-use convmit::ai::{Model, create_client};
+use convmit::ai::create_client;
 use convmit::cli::Cli;
 use convmit::config::Config;
 use convmit::git::Git;
@@ -23,7 +23,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    let model = cli.model.unwrap_or(Model::Haiku3_5);
+    if let Some(model) = cli.set_default_model {
+        config.set_default_model(model.clone())?;
+        println!(
+            "{}",
+            format!("✓ Default model set to {} in config", model).green()
+        );
+        return Ok(());
+    }
+
+    let model = cli.model.unwrap_or(config.get_default_model());
 
     // Validate model configuration
     config.validate_model_config(&model)?;

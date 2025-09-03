@@ -19,6 +19,7 @@ fn test_config_integration_with_models() {
     let mut config = Config {
         claude_api_key: Some("claude-test-key".to_string()),
         openai_api_key: None,
+        default_model: None,
     };
 
     // Claude model should work
@@ -67,6 +68,7 @@ fn test_full_workflow_simulation() {
     let config = Config {
         claude_api_key: Some("claude-key".to_string()),
         openai_api_key: Some("openai-key".to_string()),
+        default_model: None,
     };
 
     let models_to_test = vec![
@@ -130,6 +132,7 @@ fn test_error_messages_are_descriptive() {
     let empty_config = Config {
         claude_api_key: None,
         openai_api_key: None,
+        default_model: None,
     };
 
     // Test Claude error message
