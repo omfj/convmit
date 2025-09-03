@@ -20,6 +20,7 @@ fn test_config_integration_with_models() {
         claude_api_key: Some("claude-test-key".to_string()),
         openai_api_key: None,
         gemini_api_key: None,
+        mistral_api_key: None,
         default_model: None,
     };
 
@@ -70,6 +71,7 @@ fn test_full_workflow_simulation() {
         claude_api_key: Some("claude-key".to_string()),
         openai_api_key: Some("openai-key".to_string()),
         gemini_api_key: Some("gemini-key".to_string()),
+        mistral_api_key: Some("mistral-key".to_string()),
         default_model: None,
     };
 
@@ -78,6 +80,8 @@ fn test_full_workflow_simulation() {
         Model::Haiku3_5,
         Model::GPT5,
         Model::GPT5Mini,
+        Model::MistralMedium31,
+        Model::Ministral8B,
     ];
 
     for model in models_to_test {
@@ -135,6 +139,7 @@ fn test_error_messages_are_descriptive() {
         claude_api_key: None,
         openai_api_key: None,
         gemini_api_key: None,
+        mistral_api_key: None,
         default_model: None,
     };
 

@@ -15,6 +15,9 @@ pub struct Cli {
     #[arg(long, help = "Set the Gemini API key in config")]
     pub set_gemini_key: Option<String>,
 
+    #[arg(long, help = "Set the Mistral API key in config")]
+    pub set_mistral_key: Option<String>,
+
     #[arg(long, help = "Set the default model in config")]
     pub set_default_model: Option<ai::Model>,
 

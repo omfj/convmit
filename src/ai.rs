@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 mod claude;
 mod gemini;
+mod mistral;
 mod openai;
 
 pub const BASE_PROMPT: &str = r#"Generate a conventional commit message based on the staged files and git diff below.
@@ -69,6 +70,11 @@ pub enum Model {
     Gemini2_5Pro,
     Gemini2_5Flash,
     Gemini2_5FlashLite,
+    MistralMedium31,
+    MagistralMedium11,
+    Codestral2508,
+    MistralSmall32,
+    Ministral8B,
 }
 
 impl Display for Model {
@@ -86,6 +92,11 @@ impl Display for Model {
             Model::Gemini2_5Pro => "gemini-2.5-pro",
             Model::Gemini2_5Flash => "gemini-2.5-flash",
             Model::Gemini2_5FlashLite => "gemini-2.5-flash-lite",
+            Model::MistralMedium31 => "mistral-medium-2508",
+            Model::MagistralMedium11 => "magistral-medium-2507",
+            Model::Codestral2508 => "codestral-2508",
+            Model::MistralSmall32 => "mistral-small-3.2",
+            Model::Ministral8B => "ministral-8b-2410",
         };
         write!(f, "{model_str}")
     }
@@ -108,6 +119,11 @@ impl FromStr for Model {
             "gemini-2.5-pro" => Ok(Model::Gemini2_5Pro),
             "gemini-2.5-flash" => Ok(Model::Gemini2_5Flash),
             "gemini-2.5-flash-lite" => Ok(Model::Gemini2_5FlashLite),
+            "mistral-medium-31" => Ok(Model::MistralMedium31),
+            "magistral-medium-11" => Ok(Model::MagistralMedium11),
+            "codestral-2508" => Ok(Model::Codestral2508),
+            "mistral-small-32" => Ok(Model::MistralSmall32),
+            "ministral-8b" => Ok(Model::Ministral8B),
             _ => Err(anyhow::anyhow!("Unknown model: {}", arg)),
         }
     }
@@ -136,6 +152,17 @@ impl Model {
             Model::Gemini2_5Pro | Model::Gemini2_5Flash | Model::Gemini2_5FlashLite
         )
     }
+
+    pub fn is_mistral(&self) -> bool {
+        matches!(
+            self,
+            Model::MistralMedium31
+                | Model::MagistralMedium11
+                | Model::Codestral2508
+                | Model::MistralSmall32
+                | Model::Ministral8B
+        )
+    }
 }
 
 pub fn create_client(model: Model, api_key: String) -> Box<dyn GenerateCommitMessage> {
@@ -145,6 +172,8 @@ pub fn create_client(model: Model, api_key: String) -> Box<dyn GenerateCommitMes
         Box::new(openai::Client::new(api_key, model))
     } else if model.is_gemini() {
         Box::new(gemini::Client::new(api_key, model))
+    } else if model.is_mistral() {
+        Box::new(mistral::Client::new(api_key, model))
     } else {
         panic!("Unsupported model: {model:?}")
     }
@@ -215,6 +244,31 @@ mod tests {
     fn test_create_client_with_openai_model() {
         let api_key = "test-api-key".to_string();
         let model = Model::GPT5;
+
+        let client = create_client(model, api_key);
+
+        // Just verify the client was created successfully
+        drop(client);
+    }
+
+    #[test]
+    fn test_model_is_mistral() {
+        assert!(Model::MistralMedium31.is_mistral());
+        assert!(Model::MagistralMedium11.is_mistral());
+        assert!(Model::Codestral2508.is_mistral());
+        assert!(Model::MistralSmall32.is_mistral());
+        assert!(Model::Ministral8B.is_mistral());
+
+        assert!(!Model::Opus4_1.is_mistral());
+        assert!(!Model::Sonnet4.is_mistral());
+        assert!(!Model::GPT5.is_mistral());
+        assert!(!Model::Gemini2_5Flash.is_mistral());
+    }
+
+    #[test]
+    fn test_create_client_with_mistral_model() {
+        let api_key = "test-api-key".to_string();
+        let model = Model::MistralMedium31;
 
         let client = create_client(model, api_key);
 

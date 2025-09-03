@@ -29,6 +29,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
+    if let Some(api_key) = cli.set_mistral_key {
+        config.set_mistral_api_key(api_key)?;
+        println!("{}", "✓ Mistral API key saved to config".green());
+        return Ok(());
+    }
+
     if let Some(model) = cli.set_default_model {
         config.set_default_model(model.clone())?;
         println!(

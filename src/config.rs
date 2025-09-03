@@ -8,6 +8,7 @@ pub struct Config {
     pub claude_api_key: Option<String>,
     pub openai_api_key: Option<String>,
     pub gemini_api_key: Option<String>,
+    pub mistral_api_key: Option<String>,
     pub default_model: Option<crate::ai::Model>,
 }
 
@@ -17,6 +18,7 @@ impl Default for Config {
             claude_api_key: None,
             openai_api_key: None,
             gemini_api_key: None,
+            mistral_api_key: None,
             default_model: Some(crate::ai::Model::Haiku3_5),
         }
     }
@@ -99,8 +101,23 @@ impl Config {
                 "Gemini API key required for {}. Set with --set-gemini-key or GEMINI_API_KEY env var",
                 model
             )),
+            m if m.is_mistral() && self.get_mistral_api_key().is_none() => Err(anyhow::anyhow!(
+                "Mistral API key required for {}. Set with --set-mistral-key or MISTRAL_API_KEY env var",
+                model
+            )),
             _ => Ok(()),
         }
+    }
+
+    pub fn get_mistral_api_key(&self) -> Option<String> {
+        self.mistral_api_key
+            .clone()
+            .or(std::env::var("MISTRAL_API_KEY").ok())
+    }
+
+    pub fn set_mistral_api_key(&mut self, key: String) -> Result<()> {
+        self.mistral_api_key = Some(key);
+        self.save()
     }
 
     pub fn get_api_key_for_model(&self, model: &crate::ai::Model) -> Option<String> {
@@ -110,6 +127,8 @@ impl Config {
             self.get_openai_api_key()
         } else if model.is_gemini() {
             self.get_gemini_api_key()
+        } else if model.is_mistral() {
+            self.get_mistral_api_key()
         } else {
             None
         }
@@ -137,6 +156,7 @@ mod tests {
             claude_api_key: Some("test-claude-key".to_string()),
             openai_api_key: Some("test-openai-key".to_string()),
             gemini_api_key: Some("test-gemini-key".to_string()),
+            mistral_api_key: Some("test-mistral-key".to_string()),
             default_model: Some(Model::Sonnet4),
         }
     }
@@ -146,6 +166,7 @@ mod tests {
             claude_api_key: None,
             openai_api_key: None,
             gemini_api_key: None,
+            mistral_api_key: None,
             default_model: None,
         }
     }
@@ -319,6 +340,7 @@ mod tests {
             claude_api_key: Some("claude-key".to_string()),
             openai_api_key: None,
             gemini_api_key: None,
+            mistral_api_key: None,
             default_model: None,
         };
 
@@ -326,6 +348,7 @@ mod tests {
             claude_api_key: None,
             openai_api_key: Some("openai-key".to_string()),
             gemini_api_key: None,
+            mistral_api_key: None,
             default_model: None,
         };
 
@@ -333,6 +356,15 @@ mod tests {
             claude_api_key: None,
             openai_api_key: None,
             gemini_api_key: Some("gemini-key".to_string()),
+            mistral_api_key: None,
+            default_model: None,
+        };
+
+        let mistral_only_config = Config {
+            claude_api_key: None,
+            openai_api_key: None,
+            gemini_api_key: None,
+            mistral_api_key: Some("mistral-key".to_string()),
             default_model: None,
         };
 
@@ -376,6 +408,23 @@ mod tests {
                 .validate_model_config(&Model::Gemini2_5Flash)
                 .is_ok()
         );
+
+        // Mistral-only config
+        assert!(
+            mistral_only_config
+                .validate_model_config(&Model::Sonnet4)
+                .is_err()
+        );
+        assert!(
+            mistral_only_config
+                .validate_model_config(&Model::GPT5)
+                .is_err()
+        );
+        assert!(
+            mistral_only_config
+                .validate_model_config(&Model::MistralMedium31)
+                .is_ok()
+        );
     }
 
     #[test]
@@ -394,5 +443,50 @@ mod tests {
     fn test_get_default_model_with_default() {
         let config = Config::default();
         assert_eq!(config.get_default_model(), Model::Haiku3_5);
+    }
+
+    #[test]
+    fn test_get_mistral_api_key_from_config() {
+        let config = create_test_config();
+        assert_eq!(
+            config.get_mistral_api_key(),
+            Some("test-mistral-key".to_string())
+        );
+    }
+
+    #[test]
+    fn test_get_mistral_api_key_from_env() {
+        let config = create_empty_config();
+
+        // Set environment variable
+        unsafe {
+            std::env::set_var("MISTRAL_API_KEY", "env-mistral-key");
+        }
+
+        assert_eq!(
+            config.get_mistral_api_key(),
+            Some("env-mistral-key".to_string())
+        );
+
+        // Clean up
+        unsafe {
+            std::env::remove_var("MISTRAL_API_KEY");
+        }
+    }
+
+    #[test]
+    fn test_validate_mistral_model_config() {
+        let config = create_test_config();
+        assert!(config.validate_model_config(&Model::MistralMedium31).is_ok());
+
+        let empty_config = create_empty_config();
+        let result = empty_config.validate_model_config(&Model::MistralMedium31);
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("Mistral API key required")
+        );
     }
 }
