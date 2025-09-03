@@ -21,6 +21,9 @@ pub struct Cli {
     #[arg(long, help = "Set the default model in config")]
     pub set_default_model: Option<ai::Model>,
 
+    #[arg(long, help = "List all available models")]
+    pub list_models: bool,
+
     #[arg(short, long, help = "Specify model to use")]
     pub model: Option<ai::Model>,
 

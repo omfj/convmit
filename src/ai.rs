@@ -130,6 +130,68 @@ impl FromStr for Model {
 }
 
 impl Model {
+    pub fn all_models() -> Vec<Model> {
+        vec![
+            // Claude models
+            Model::Opus4_1,
+            Model::Opus4,
+            Model::Sonnet4,
+            Model::Sonnet3_7,
+            Model::Haiku3_5,
+            Model::Haiku3,
+            // OpenAI models
+            Model::GPT5,
+            Model::GPT5Mini,
+            Model::GPT5Nano,
+            // Gemini models
+            Model::Gemini2_5Pro,
+            Model::Gemini2_5Flash,
+            Model::Gemini2_5FlashLite,
+            // Mistral models
+            Model::MistralMedium31,
+            Model::MagistralMedium11,
+            Model::Codestral2508,
+            Model::MistralSmall32,
+            Model::Ministral8B,
+        ]
+    }
+
+    pub fn provider(&self) -> &'static str {
+        if self.is_claude() {
+            "Claude"
+        } else if self.is_openai() {
+            "OpenAI"
+        } else if self.is_gemini() {
+            "Google Gemini"
+        } else if self.is_mistral() {
+            "Mistral"
+        } else {
+            "Unknown"
+        }
+    }
+
+    pub fn cli_name(&self) -> &'static str {
+        match self {
+            Model::Opus4_1 => "opus-4-1",
+            Model::Opus4 => "opus-4",
+            Model::Sonnet4 => "sonnet-4",
+            Model::Sonnet3_7 => "sonnet-3-7",
+            Model::Haiku3_5 => "haiku-3-5",
+            Model::Haiku3 => "haiku-3",
+            Model::GPT5 => "gpt-5",
+            Model::GPT5Mini => "gpt-5-mini",
+            Model::GPT5Nano => "gpt-5-nano",
+            Model::Gemini2_5Pro => "gemini-2.5-pro",
+            Model::Gemini2_5Flash => "gemini-2.5-flash",
+            Model::Gemini2_5FlashLite => "gemini-2.5-flash-lite",
+            Model::MistralMedium31 => "mistral-medium-31",
+            Model::MagistralMedium11 => "magistral-medium-11",
+            Model::Codestral2508 => "codestral-2508",
+            Model::MistralSmall32 => "mistral-small-32",
+            Model::Ministral8B => "ministral-8b",
+        }
+    }
+
     pub fn is_claude(&self) -> bool {
         matches!(
             self,
@@ -274,5 +336,53 @@ mod tests {
 
         // Just verify the client was created successfully
         drop(client);
+    }
+
+    #[test]
+    fn test_all_models_returns_all_variants() {
+        let models = Model::all_models();
+
+        assert_eq!(models.len(), 17);
+
+        assert!(models.iter().any(|m| m.is_claude()));
+        assert!(models.iter().any(|m| m.is_openai()));
+        assert!(models.iter().any(|m| m.is_gemini()));
+        assert!(models.iter().any(|m| m.is_mistral()));
+
+        assert!(models.contains(&Model::Sonnet4));
+        assert!(models.contains(&Model::GPT5));
+        assert!(models.contains(&Model::Gemini2_5Flash));
+        assert!(models.contains(&Model::MistralMedium31));
+    }
+
+    #[test]
+    fn test_model_provider() {
+        assert_eq!(Model::Sonnet4.provider(), "Claude");
+        assert_eq!(Model::GPT5.provider(), "OpenAI");
+        assert_eq!(Model::Gemini2_5Flash.provider(), "Google Gemini");
+        assert_eq!(Model::MistralMedium31.provider(), "Mistral");
+    }
+
+    #[test]
+    fn test_model_cli_name() {
+        assert_eq!(Model::Sonnet4.cli_name(), "sonnet-4");
+        assert_eq!(Model::GPT5.cli_name(), "gpt-5");
+        assert_eq!(Model::Gemini2_5Flash.cli_name(), "gemini-2.5-flash");
+        assert_eq!(Model::MistralMedium31.cli_name(), "mistral-medium-31");
+        assert_eq!(Model::Ministral8B.cli_name(), "ministral-8b");
+    }
+
+    #[test]
+    fn test_cli_name_matches_from_str() {
+        for model in Model::all_models() {
+            // Test that cli_name can be parsed back to the same model
+            assert_eq!(
+                Model::from_str(model.cli_name()).unwrap(),
+                model,
+                "CLI name '{}' for model {:?} should parse back to same model",
+                model.cli_name(),
+                model
+            );
+        }
     }
 }

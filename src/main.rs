@@ -1,7 +1,7 @@
 use clap::Parser;
 use colored::*;
 
-use convmit::ai::create_client;
+use convmit::ai::{create_client, Model};
 use convmit::cli::Cli;
 use convmit::config::Config;
 use convmit::git::Git;
@@ -41,6 +41,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "{}",
             format!("✓ Default model set to {} in config", model).green()
         );
+        return Ok(());
+    }
+
+    if cli.list_models {
+        println!("{}", "Available models:".blue().bold());
+        
+        let models_by_provider = Model::all_models()
+            .into_iter()
+            .fold(std::collections::BTreeMap::new(), |mut acc, model| {
+                acc.entry(model.provider())
+                   .or_insert_with(Vec::new)
+                   .push(model);
+                acc
+            });
+
+        for (provider, models) in models_by_provider {
+            println!("\n{}", provider.cyan().bold());
+            for model in models {
+                println!("  {} ({})", model.cli_name().white(), model.to_string().dimmed());
+            }
+        }
         return Ok(());
     }
 
