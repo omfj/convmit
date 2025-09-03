@@ -1,7 +1,9 @@
+use std::collections::BTreeMap;
+
 use clap::Parser;
 use colored::*;
 
-use convmit::ai::{create_client, Model};
+use convmit::ai::{Model, create_client};
 use convmit::cli::Cli;
 use convmit::config::Config;
 use convmit::git::Git;
@@ -46,20 +48,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if cli.list_models {
         println!("{}", "Available models:".blue().bold());
-        
-        let models_by_provider = Model::all_models()
-            .into_iter()
-            .fold(std::collections::BTreeMap::new(), |mut acc, model| {
-                acc.entry(model.provider())
-                   .or_insert_with(Vec::new)
-                   .push(model);
-                acc
-            });
+
+        let models_by_provider: BTreeMap<&str, Vec<_>> =
+            Model::all_models()
+                .into_iter()
+                .fold(BTreeMap::new(), |mut acc, model| {
+                    acc.entry(model.provider()).or_default().push(model);
+                    acc
+                });
 
         for (provider, models) in models_by_provider {
             println!("\n{}", provider.cyan().bold());
             for model in models {
-                println!("  {} ({})", model.cli_name().white(), model.to_string().dimmed());
+                println!(
+                    "  {} ({})",
+                    model.to_string().white(),
+                    model.to_api_str().dimmed()
+                );
             }
         }
         return Ok(());
@@ -92,7 +97,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         commit_message.cyan()
     );
 
-    if cli.commit {
+    if !cli.no_commit {
         Git::commit(&commit_message)?;
         println!("{}", "✓ Committed with generated message".green().bold());
     }

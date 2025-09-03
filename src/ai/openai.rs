@@ -64,7 +64,7 @@ impl GenerateCommitMessage for Client {
         let prompt = build_prompt(files, diff);
 
         let request = OpenAIRequest {
-            model: self.model.to_string(),
+            model: self.model.to_api_str(),
             messages: vec![Message {
                 role: "user".to_string(),
                 content: prompt,

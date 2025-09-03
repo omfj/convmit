@@ -31,7 +31,7 @@ pub struct Cli {
         short,
         long,
         help = "Automatically commit with the generated message",
-        default_value = "true"
+        default_value = "false"
     )]
-    pub commit: bool,
+    pub no_commit: bool,
 }

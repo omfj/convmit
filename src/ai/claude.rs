@@ -63,7 +63,7 @@ impl GenerateCommitMessage for Client {
         let prompt = build_prompt(files, diff);
 
         let request = ClaudeRequest {
-            model: self.model.to_string(),
+            model: self.model.to_api_str(),
             max_tokens: 1024,
             messages: vec![Message {
                 role: "user".to_string(),

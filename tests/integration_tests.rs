@@ -10,7 +10,7 @@ async fn test_client_factory_creates_working_clients() {
     drop(claude_client); // Just verify it was created successfully
 
     // Test OpenAI client creation
-    let openai_client = create_client(Model::GPT5, api_key);
+    let openai_client = create_client(Model::Gpt5, api_key);
     drop(openai_client); // Just verify it was created successfully
 }
 
@@ -32,16 +32,16 @@ fn test_config_integration_with_models() {
     );
 
     // OpenAI model should fail validation
-    assert!(config.validate_model_config(&Model::GPT5).is_err());
-    assert_eq!(config.get_api_key_for_model(&Model::GPT5), None);
+    assert!(config.validate_model_config(&Model::Gpt5).is_err());
+    assert_eq!(config.get_api_key_for_model(&Model::Gpt5), None);
 
     // Add OpenAI key
     config.openai_api_key = Some("openai-test-key".to_string());
 
     // Now OpenAI model should work
-    assert!(config.validate_model_config(&Model::GPT5).is_ok());
+    assert!(config.validate_model_config(&Model::Gpt5).is_ok());
     assert_eq!(
-        config.get_api_key_for_model(&Model::GPT5),
+        config.get_api_key_for_model(&Model::Gpt5),
         Some("openai-test-key".to_string())
     );
 }
@@ -51,15 +51,15 @@ fn test_model_display_and_parsing() {
     use std::str::FromStr;
 
     // Test model display
-    assert_eq!(Model::Sonnet4.to_string(), "claude-sonnet-4-20250514");
-    assert_eq!(Model::GPT5.to_string(), "gpt-5-2025-08-07");
+    assert_eq!(Model::Sonnet4.to_api_str(), "claude-sonnet-4-20250514");
+    assert_eq!(Model::Gpt5.to_api_str(), "gpt-5-2025-08-07");
 
     // Test model parsing
     assert!(matches!(
         Model::from_str("sonnet-4").unwrap(),
         Model::Sonnet4
     ));
-    assert!(matches!(Model::from_str("gpt-5").unwrap(), Model::GPT5));
+    assert!(matches!(Model::from_str("gpt-5").unwrap(), Model::Gpt5));
 
     // Test invalid model
     assert!(Model::from_str("invalid-model").is_err());
@@ -78,10 +78,10 @@ fn test_full_workflow_simulation() {
     let models_to_test = vec![
         Model::Sonnet4,
         Model::Haiku3_5,
-        Model::GPT5,
-        Model::GPT5Mini,
-        Model::MistralMedium31,
-        Model::Ministral8B,
+        Model::Gpt5,
+        Model::Gpt5Mini,
+        Model::MistralMedium3_1,
+        Model::Ministral8b,
     ];
 
     for model in models_to_test {
@@ -154,7 +154,7 @@ fn test_error_messages_are_descriptive() {
 
     // Test OpenAI error message
     let openai_error = empty_config
-        .validate_model_config(&Model::GPT5)
+        .validate_model_config(&Model::Gpt5)
         .unwrap_err();
     let error_msg = openai_error.to_string();
     assert!(error_msg.contains("OpenAI API key required"));

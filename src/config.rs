@@ -265,8 +265,8 @@ mod tests {
         assert!(config.validate_model_config(&Model::Haiku3_5).is_ok());
 
         // Should succeed for OpenAI models when OpenAI key is present
-        assert!(config.validate_model_config(&Model::GPT5).is_ok());
-        assert!(config.validate_model_config(&Model::GPT5Mini).is_ok());
+        assert!(config.validate_model_config(&Model::Gpt5).is_ok());
+        assert!(config.validate_model_config(&Model::Gpt5Mini).is_ok());
     }
 
     #[test]
@@ -284,7 +284,7 @@ mod tests {
         );
 
         // Should fail for OpenAI models when OpenAI key is missing
-        let result = config.validate_model_config(&Model::GPT5);
+        let result = config.validate_model_config(&Model::Gpt5);
         assert!(result.is_err());
         assert!(
             result
@@ -310,11 +310,11 @@ mod tests {
 
         // Test OpenAI models
         assert_eq!(
-            config.get_api_key_for_model(&Model::GPT5),
+            config.get_api_key_for_model(&Model::Gpt5),
             Some("test-openai-key".to_string())
         );
         assert_eq!(
-            config.get_api_key_for_model(&Model::GPT5Mini),
+            config.get_api_key_for_model(&Model::Gpt5Mini),
             Some("test-openai-key".to_string())
         );
     }
@@ -331,7 +331,7 @@ mod tests {
 
         // Should return None when no keys are configured
         assert_eq!(config.get_api_key_for_model(&Model::Sonnet4), None);
-        assert_eq!(config.get_api_key_for_model(&Model::GPT5), None);
+        assert_eq!(config.get_api_key_for_model(&Model::Gpt5), None);
     }
 
     #[test]
@@ -376,7 +376,7 @@ mod tests {
         );
         assert!(
             claude_only_config
-                .validate_model_config(&Model::GPT5)
+                .validate_model_config(&Model::Gpt5)
                 .is_err()
         );
 
@@ -388,7 +388,7 @@ mod tests {
         );
         assert!(
             openai_only_config
-                .validate_model_config(&Model::GPT5)
+                .validate_model_config(&Model::Gpt5)
                 .is_ok()
         );
 
@@ -400,7 +400,7 @@ mod tests {
         );
         assert!(
             gemini_only_config
-                .validate_model_config(&Model::GPT5)
+                .validate_model_config(&Model::Gpt5)
                 .is_err()
         );
         assert!(
@@ -417,12 +417,12 @@ mod tests {
         );
         assert!(
             mistral_only_config
-                .validate_model_config(&Model::GPT5)
+                .validate_model_config(&Model::Gpt5)
                 .is_err()
         );
         assert!(
             mistral_only_config
-                .validate_model_config(&Model::MistralMedium31)
+                .validate_model_config(&Model::MistralMedium3_1)
                 .is_ok()
         );
     }
@@ -477,10 +477,14 @@ mod tests {
     #[test]
     fn test_validate_mistral_model_config() {
         let config = create_test_config();
-        assert!(config.validate_model_config(&Model::MistralMedium31).is_ok());
+        assert!(
+            config
+                .validate_model_config(&Model::MistralMedium3_1)
+                .is_ok()
+        );
 
         let empty_config = create_empty_config();
-        let result = empty_config.validate_model_config(&Model::MistralMedium31);
+        let result = empty_config.validate_model_config(&Model::MistralMedium3_1);
         assert!(result.is_err());
         assert!(
             result

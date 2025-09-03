@@ -72,7 +72,7 @@ impl GenerateCommitMessage for Client {
         let response = http_client
             .post(format!(
                 "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent",
-                self.model.to_string()
+                self.model.to_api_str()
             ))
             .header("content-type", "application/json")
             .header("x-goog-api-key", &self.api_key)
