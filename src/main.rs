@@ -23,6 +23,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
+    if let Some(api_key) = cli.set_gemini_key {
+        config.set_gemini_api_key(api_key)?;
+        println!("{}", "✓ Gemini API key saved to config".green());
+        return Ok(());
+    }
+
     if let Some(model) = cli.set_default_model {
         config.set_default_model(model.clone())?;
         println!(
@@ -40,7 +46,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Get API key for the model
     let api_key = config
         .get_api_key_for_model(&model)
-        .ok_or_else(|| anyhow::anyhow!("No API key found for model {}", model))?;
+        .ok_or(anyhow::anyhow!("No API key found for model {}", model))?;
 
     let diff = Git::get_staged_diff()?;
     let staged_files = Git::get_staged_files()?;

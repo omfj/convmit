@@ -19,6 +19,7 @@ fn test_config_integration_with_models() {
     let mut config = Config {
         claude_api_key: Some("claude-test-key".to_string()),
         openai_api_key: None,
+        gemini_api_key: None,
         default_model: None,
     };
 
@@ -68,6 +69,7 @@ fn test_full_workflow_simulation() {
     let config = Config {
         claude_api_key: Some("claude-key".to_string()),
         openai_api_key: Some("openai-key".to_string()),
+        gemini_api_key: Some("gemini-key".to_string()),
         default_model: None,
     };
 
@@ -132,6 +134,7 @@ fn test_error_messages_are_descriptive() {
     let empty_config = Config {
         claude_api_key: None,
         openai_api_key: None,
+        gemini_api_key: None,
         default_model: None,
     };
 

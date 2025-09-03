@@ -3,6 +3,7 @@ use std::{fmt::Display, str::FromStr};
 use serde::{Deserialize, Serialize};
 
 mod claude;
+mod gemini;
 mod openai;
 
 pub const BASE_PROMPT: &str = r#"Generate a conventional commit message based on the staged files and git diff below.
@@ -65,6 +66,9 @@ pub enum Model {
     GPT5,
     GPT5Mini,
     GPT5Nano,
+    Gemini2_5Pro,
+    Gemini2_5Flash,
+    Gemini2_5FlashLite,
 }
 
 impl Display for Model {
@@ -79,6 +83,9 @@ impl Display for Model {
             Model::GPT5 => "gpt-5-2025-08-07",
             Model::GPT5Mini => "gpt-5-mini-2025-08-07",
             Model::GPT5Nano => "gpt-5-nano-2025-08-07",
+            Model::Gemini2_5Pro => "gemini-2.5-pro",
+            Model::Gemini2_5Flash => "gemini-2.5-flash",
+            Model::Gemini2_5FlashLite => "gemini-2.5-flash-lite",
         };
         write!(f, "{model_str}")
     }
@@ -98,6 +105,9 @@ impl FromStr for Model {
             "gpt-5" => Ok(Model::GPT5),
             "gpt-5-mini" => Ok(Model::GPT5Mini),
             "gpt-5-nano" => Ok(Model::GPT5Nano),
+            "gemini-2.5-pro" => Ok(Model::Gemini2_5Pro),
+            "gemini-2.5-flash" => Ok(Model::Gemini2_5Flash),
+            "gemini-2.5-flash-lite" => Ok(Model::Gemini2_5FlashLite),
             _ => Err(anyhow::anyhow!("Unknown model: {}", arg)),
         }
     }
@@ -119,6 +129,13 @@ impl Model {
     pub fn is_openai(&self) -> bool {
         matches!(self, Model::GPT5 | Model::GPT5Mini | Model::GPT5Nano)
     }
+
+    pub fn is_gemini(&self) -> bool {
+        matches!(
+            self,
+            Model::Gemini2_5Pro | Model::Gemini2_5Flash | Model::Gemini2_5FlashLite
+        )
+    }
 }
 
 pub fn create_client(model: Model, api_key: String) -> Box<dyn GenerateCommitMessage> {
@@ -126,6 +143,8 @@ pub fn create_client(model: Model, api_key: String) -> Box<dyn GenerateCommitMes
         Box::new(claude::Client::new(api_key, model))
     } else if model.is_openai() {
         Box::new(openai::Client::new(api_key, model))
+    } else if model.is_gemini() {
+        Box::new(gemini::Client::new(api_key, model))
     } else {
         panic!("Unsupported model: {model:?}")
     }

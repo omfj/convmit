@@ -7,6 +7,7 @@ use std::path::PathBuf;
 pub struct Config {
     pub claude_api_key: Option<String>,
     pub openai_api_key: Option<String>,
+    pub gemini_api_key: Option<String>,
     pub default_model: Option<crate::ai::Model>,
 }
 
@@ -15,6 +16,7 @@ impl Default for Config {
         Self {
             claude_api_key: None,
             openai_api_key: None,
+            gemini_api_key: None,
             default_model: Some(crate::ai::Model::Haiku3_5),
         }
     }
@@ -72,6 +74,17 @@ impl Config {
         self.save()
     }
 
+    pub fn get_gemini_api_key(&self) -> Option<String> {
+        self.gemini_api_key
+            .clone()
+            .or(std::env::var("GEMINI_API_KEY").ok())
+    }
+
+    pub fn set_gemini_api_key(&mut self, key: String) -> Result<()> {
+        self.gemini_api_key = Some(key);
+        self.save()
+    }
+
     pub fn validate_model_config(&self, model: &crate::ai::Model) -> Result<()> {
         match model {
             m if m.is_claude() && self.get_claude_api_key().is_none() => Err(anyhow::anyhow!(
@@ -80,6 +93,10 @@ impl Config {
             )),
             m if m.is_openai() && self.get_openai_api_key().is_none() => Err(anyhow::anyhow!(
                 "OpenAI API key required for {}. Set with --set-openai-key or OPENAI_API_KEY env var",
+                model
+            )),
+            m if m.is_gemini() && self.get_gemini_api_key().is_none() => Err(anyhow::anyhow!(
+                "Gemini API key required for {}. Set with --set-gemini-key or GEMINI_API_KEY env var",
                 model
             )),
             _ => Ok(()),
@@ -91,13 +108,17 @@ impl Config {
             self.get_claude_api_key()
         } else if model.is_openai() {
             self.get_openai_api_key()
+        } else if model.is_gemini() {
+            self.get_gemini_api_key()
         } else {
             None
         }
     }
 
     pub fn get_default_model(&self) -> crate::ai::Model {
-        self.default_model.clone().unwrap_or(crate::ai::Model::Haiku3_5)
+        self.default_model
+            .clone()
+            .unwrap_or(crate::ai::Model::Haiku3_5)
     }
 
     pub fn set_default_model(&mut self, model: crate::ai::Model) -> Result<()> {
@@ -115,6 +136,7 @@ mod tests {
         Config {
             claude_api_key: Some("test-claude-key".to_string()),
             openai_api_key: Some("test-openai-key".to_string()),
+            gemini_api_key: Some("test-gemini-key".to_string()),
             default_model: Some(Model::Sonnet4),
         }
     }
@@ -123,6 +145,7 @@ mod tests {
         Config {
             claude_api_key: None,
             openai_api_key: None,
+            gemini_api_key: None,
             default_model: None,
         }
     }
@@ -295,12 +318,21 @@ mod tests {
         let claude_only_config = Config {
             claude_api_key: Some("claude-key".to_string()),
             openai_api_key: None,
+            gemini_api_key: None,
             default_model: None,
         };
 
         let openai_only_config = Config {
             claude_api_key: None,
             openai_api_key: Some("openai-key".to_string()),
+            gemini_api_key: None,
+            default_model: None,
+        };
+
+        let gemini_only_config = Config {
+            claude_api_key: None,
+            openai_api_key: None,
+            gemini_api_key: Some("gemini-key".to_string()),
             default_model: None,
         };
 
@@ -325,6 +357,23 @@ mod tests {
         assert!(
             openai_only_config
                 .validate_model_config(&Model::GPT5)
+                .is_ok()
+        );
+
+        // Gemini-only config
+        assert!(
+            gemini_only_config
+                .validate_model_config(&Model::Sonnet4)
+                .is_err()
+        );
+        assert!(
+            gemini_only_config
+                .validate_model_config(&Model::GPT5)
+                .is_err()
+        );
+        assert!(
+            gemini_only_config
+                .validate_model_config(&Model::Gemini2_5Flash)
                 .is_ok()
         );
     }

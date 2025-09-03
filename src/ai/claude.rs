@@ -1,5 +1,4 @@
 use crate::ai::{self, GenerateCommitMessage, Model, build_prompt};
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
@@ -55,7 +54,11 @@ impl Client {
 
 #[async_trait::async_trait]
 impl GenerateCommitMessage for Client {
-    async fn generate_commit_message(&self, files: &[String], diff: &str) -> Result<String> {
+    async fn generate_commit_message(
+        &self,
+        files: &[String],
+        diff: &str,
+    ) -> anyhow::Result<String> {
         let http_client = reqwest::Client::new();
         let prompt = build_prompt(files, diff);
 
