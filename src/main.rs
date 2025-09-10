@@ -91,11 +91,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = create_client(model, api_key);
     let commit_message = client.generate_commit_message(&staged_files, &diff).await?;
 
-    println!(
-        "{} {}",
-        "Generated commit message:".blue().bold(),
-        commit_message.cyan()
-    );
+    println!("{}", commit_message);
 
     if !cli.no_commit {
         Git::commit(&commit_message)?;
