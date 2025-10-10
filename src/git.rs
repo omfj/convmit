@@ -21,8 +21,18 @@ impl Git {
         Ok(files)
     }
 
-    pub fn get_staged_diff() -> Result<String, Box<dyn std::error::Error>> {
-        let output = Command::new("git").args(["diff", "--cached"]).output()?;
+    pub fn get_staged_diff(files: &[String]) -> Result<String, Box<dyn std::error::Error>> {
+        let mut command = Command::new("git");
+        command.args(["diff", "--cached"]);
+
+        if !files.is_empty() {
+            command.arg("--");
+            for file in files {
+                command.arg(file);
+            }
+        }
+
+        let output = command.output()?;
 
         if !output.status.success() {
             return Err("Failed to get staged diff".into());

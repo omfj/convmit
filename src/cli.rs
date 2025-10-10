@@ -34,4 +34,22 @@ pub struct Cli {
         default_value = "false"
     )]
     pub no_commit: bool,
+
+    #[arg(
+        long = "exclude",
+        value_name = "FILE",
+        num_args = 1..,
+        value_delimiter = ',',
+        help = "Files to exclude from the generated prompt"
+    )]
+    pub exclude: Vec<String>,
+
+    #[arg(
+        long = "only",
+        value_name = "FILE",
+        num_args = 1..,
+        value_delimiter = ',',
+        help = "Limit the prompt to the specified files"
+    )]
+    pub only: Vec<String>,
 }

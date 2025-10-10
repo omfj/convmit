@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 
 use clap::Parser;
 use colored::*;
@@ -80,16 +80,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .get_api_key_for_model(&model)
         .ok_or(anyhow::anyhow!("No API key found for model {}", model))?;
 
-    let diff = Git::get_staged_diff()?;
     let staged_files = Git::get_staged_files()?;
     if staged_files.is_empty() {
         println!("{}", "ℹ No files staged for commit".yellow());
         return Ok(());
     }
 
+    let filtered_files = apply_file_filters(staged_files, &cli.only, &cli.exclude);
+    if filtered_files.is_empty() {
+        println!(
+            "{}",
+            "ℹ No staged files matched the provided filters".yellow()
+        );
+        return Ok(());
+    }
+
+    let diff = Git::get_staged_diff(&filtered_files)?;
+
     // Create client using factory pattern
     let client = create_client(model, api_key);
-    let commit_message = client.generate_commit_message(&staged_files, &diff).await?;
+    let commit_message = client
+        .generate_commit_message(&filtered_files, &diff)
+        .await?;
 
     println!("{}", commit_message);
 
@@ -99,4 +111,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
+}
+
+fn apply_file_filters(
+    staged_files: Vec<String>,
+    only: &[String],
+    exclude: &[String],
+) -> Vec<String> {
+    let only_set: HashSet<&str> = only.iter().map(|s| s.as_str()).collect();
+    let exclude_set: HashSet<&str> = exclude.iter().map(|s| s.as_str()).collect();
+
+    staged_files
+        .into_iter()
+        .filter(|file| {
+            (only_set.is_empty() || only_set.contains(file.as_str()))
+                && !exclude_set.contains(file.as_str())
+        })
+        .collect()
 }
