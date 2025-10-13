@@ -56,10 +56,10 @@ fn test_model_display_and_parsing() {
 
     // Test model parsing
     assert!(matches!(
-        Model::from_str("sonnet-4").unwrap(),
+        Model::from_str("sonnet4").unwrap(),
         Model::Sonnet4
     ));
-    assert!(matches!(Model::from_str("gpt-5").unwrap(), Model::Gpt5));
+    assert!(matches!(Model::from_str("gpt5").unwrap(), Model::Gpt5));
 
     // Test invalid model
     assert!(Model::from_str("invalid-model").is_err());
