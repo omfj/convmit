@@ -1,4 +1,4 @@
-use crate::ai::{self, GenerateCommitMessage, Model, build_prompt};
+use crate::ai::{self, GenerateCommitMessage, Model, SYSTEM_PROMPT, build_user_prompt};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
@@ -61,14 +61,20 @@ impl GenerateCommitMessage for Client {
         diff: &str,
     ) -> anyhow::Result<String> {
         let http_client = reqwest::Client::new();
-        let prompt = build_prompt(files, diff);
+        let prompt = build_user_prompt(files, diff);
 
         let request = MistralRequest {
             model: self.model.to_api_str(),
-            messages: vec![Message {
-                role: "user".to_string(),
-                content: prompt,
-            }],
+            messages: vec![
+                Message {
+                    role: "system".to_string(),
+                    content: SYSTEM_PROMPT.to_string(),
+                },
+                Message {
+                    role: "user".to_string(),
+                    content: prompt,
+                },
+            ],
             max_tokens: 1024,
             temperature: 0.3,
         };

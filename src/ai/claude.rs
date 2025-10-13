@@ -1,10 +1,11 @@
-use crate::ai::{self, GenerateCommitMessage, Model, build_prompt};
+use crate::ai::{self, GenerateCommitMessage, Model, SYSTEM_PROMPT, build_user_prompt};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
 struct ClaudeRequest {
     model: String,
     max_tokens: u32,
+    system: String,
     messages: Vec<Message>,
 }
 
@@ -60,11 +61,12 @@ impl GenerateCommitMessage for Client {
         diff: &str,
     ) -> anyhow::Result<String> {
         let http_client = reqwest::Client::new();
-        let prompt = build_prompt(files, diff);
+        let prompt = build_user_prompt(files, diff);
 
         let request = ClaudeRequest {
             model: self.model.to_api_str(),
             max_tokens: 1024,
+            system: SYSTEM_PROMPT.to_string(),
             messages: vec![Message {
                 role: "user".to_string(),
                 content: prompt,

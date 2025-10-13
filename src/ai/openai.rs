@@ -1,7 +1,7 @@
 use reqwest::header::AUTHORIZATION;
 use serde::{Deserialize, Serialize};
 
-use crate::ai::{GenerateCommitMessage, Model, build_prompt};
+use crate::ai::{GenerateCommitMessage, Model, SYSTEM_PROMPT, build_user_prompt};
 
 #[derive(Serialize)]
 pub struct OpenAIRequest {
@@ -61,14 +61,20 @@ impl GenerateCommitMessage for Client {
         diff: &str,
     ) -> anyhow::Result<String> {
         let http_client = reqwest::Client::new();
-        let prompt = build_prompt(files, diff);
+        let prompt = build_user_prompt(files, diff);
 
         let request = OpenAIRequest {
             model: self.model.to_api_str(),
-            messages: vec![Message {
-                role: "user".to_string(),
-                content: prompt,
-            }],
+            messages: vec![
+                Message {
+                    role: "system".to_string(),
+                    content: SYSTEM_PROMPT.to_string(),
+                },
+                Message {
+                    role: "user".to_string(),
+                    content: prompt,
+                },
+            ],
         };
 
         let response = http_client

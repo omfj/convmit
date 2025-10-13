@@ -7,7 +7,7 @@ mod gemini;
 mod mistral;
 mod openai;
 
-pub const BASE_PROMPT: &str = r#"<task>Generate a conventional commit message from staged files and git diff.</task>
+pub const SYSTEM_PROMPT: &str = r#"<task>Generate a conventional commit message from staged files and git diff.</task>
 
 <format>
   type(scope): description
@@ -45,13 +45,9 @@ pub const BASE_PROMPT: &str = r#"<task>Generate a conventional commit message fr
 </instructions>
 "#;
 
-pub fn build_prompt(files: &[String], diff: &str) -> String {
+pub fn build_user_prompt(files: &[String], diff: &str) -> String {
     format!(
-        r#"<prompt>
-  <instructions>
-    {}
-  </instructions>
-
+        r#"
   <context>
     <staged_files>
 {}
@@ -60,9 +56,7 @@ pub fn build_prompt(files: &[String], diff: &str) -> String {
     <diff>
 {}
     </diff>
-  </context>
-</prompt>"#,
-        BASE_PROMPT.trim(),
+  </context>"#,
         files.join("\n"),
         diff
     )
@@ -263,7 +257,7 @@ mod tests {
         let files = vec!["src/main.rs".to_string(), "src/config.rs".to_string()];
         let diff = "diff content here";
 
-        let prompt = build_prompt(&files, diff);
+        let prompt = build_user_prompt(&files, diff);
 
         assert!(prompt.contains("src/main.rs"));
         assert!(prompt.contains("src/config.rs"));

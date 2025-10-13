@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::ai::{GenerateCommitMessage, Model, build_prompt};
+use crate::ai::{GenerateCommitMessage, Model, SYSTEM_PROMPT, build_user_prompt};
 
 #[derive(Serialize)]
 struct GeminiRequest {
+    system_instruction: Vec<Content>,
     contents: Vec<Content>,
 }
 
@@ -61,9 +62,14 @@ impl GenerateCommitMessage for Client {
         diff: &str,
     ) -> anyhow::Result<String> {
         let http_client = reqwest::Client::new();
-        let prompt = build_prompt(files, diff);
+        let prompt = build_user_prompt(files, diff);
 
         let request = GeminiRequest {
+            system_instruction: vec![Content {
+                parts: vec![Part {
+                    text: SYSTEM_PROMPT.to_string(),
+                }],
+            }],
             contents: vec![Content {
                 parts: vec![Part { text: prompt }],
             }],

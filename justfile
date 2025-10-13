@@ -5,7 +5,7 @@ install: build
     cp target/release/convmit ~/.local/bin/convmit
 
 format:
-    cargo fmt --tests
+    cargo fmt
 
 test:
     cargo test -- --test-threads=1
