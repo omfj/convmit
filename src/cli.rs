@@ -35,6 +35,9 @@ pub struct Cli {
     )]
     pub no_commit: bool,
 
+    #[arg(long, help = "Edit the generated message before using it")]
+    pub edit: bool,
+
     #[arg(
         long = "exclude",
         value_name = "FILE",
