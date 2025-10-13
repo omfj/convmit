@@ -7,6 +7,9 @@ install: build
 format:
     cargo fmt --tests
 
+test:
+    cargo test -- --test-threads=1
+
 lint:
     cargo clippy
 
