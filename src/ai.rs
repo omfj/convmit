@@ -7,50 +7,62 @@ mod gemini;
 mod mistral;
 mod openai;
 
-pub const BASE_PROMPT: &str = r#"Generate a conventional commit message based on the staged files and git diff below.
+pub const BASE_PROMPT: &str = r#"<task>Generate a conventional commit message from staged files and git diff.</task>
 
-FORMAT: type(scope): description
-- Use lowercase for type and description
-- Scope is optional but recommended (file/module/feature affected)
-- Description should be 50-72 characters, imperative mood
-- Add '!' after type for breaking changes
+<format>
+  type(scope): description
+  - type and description in lowercase
+  - scope optional
+  - description 50–72 characters, imperative mood
+  - add '!' after type for breaking changes
+</format>
 
-COMMIT TYPES:
-- feat: new feature or enhancement
-- fix: bug fix or error correction
-- docs: documentation changes only
-- style: formatting, whitespace (no logic changes)
-- refactor: code restructuring (no feature/bug changes)
-- test: adding or updating tests
-- chore: maintenance, deps, config, build
-- perf: performance improvements
-- ci: CI/CD pipeline changes
+<types>
+  feat, fix, docs, style, refactor, test, chore, perf, ci
+</types>
 
-SCOPE GUIDELINES:
-- Use filename/module for single file changes
-- Use feature name for multi-file features
-- Use 'readme' for README changes
-- Omit scope for broad changes
+<scope_guidelines>
+  - filename/module for single file
+  - feature name for multi-file feature
+  - 'readme' for README
+  - omit for broad changes
+</scope_guidelines>
 
-EXAMPLES:
-- feat(auth): add OAuth2 login support
-- fix(parser): handle empty input correctly
-- docs(readme): update installation instructions
-- refactor(claude.rs): implement ToString for Model enum
-- style: format code with rustfmt
-- chore(deps): update reqwest to 0.11
+<examples>
+  feat(auth): add OAuth2 login support
+  fix(parser): handle empty input correctly
+  docs(readme): update installation instructions
+  refactor(claude.rs): implement ToString for Model enum
+  style: format code with rustfmt
+  chore(deps): update reqwest to 0.11
+</examples>
 
-INSTRUCTIONS:
-- Analyze the changes to determine the most appropriate type
-- Look for breaking changes (API changes, removed features)
-- Focus on the 'why' not the 'what' in the description
-- Return ONLY the commit message, no explanations
+<instructions>
+  - choose correct type
+  - detect breaking changes
+  - focus on intent, not implementation
+  - output only the commit message
+</instructions>
 "#;
 
 pub fn build_prompt(files: &[String], diff: &str) -> String {
     format!(
-        "{}\n\n Staged files:\n\n {}\n\n Diff:\n\n {}",
-        BASE_PROMPT,
+        r#"<prompt>
+  <instructions>
+    {}
+  </instructions>
+
+  <context>
+    <staged_files>
+{}
+    </staged_files>
+
+    <diff>
+{}
+    </diff>
+  </context>
+</prompt>"#,
+        BASE_PROMPT.trim(),
         files.join("\n"),
         diff
     )
