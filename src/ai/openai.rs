@@ -59,9 +59,10 @@ impl GenerateCommitMessage for Client {
         &self,
         files: &[String],
         diff: &str,
+        context: Option<&str>,
     ) -> anyhow::Result<String> {
         let http_client = reqwest::Client::new();
-        let prompt = build_user_prompt(files, diff);
+        let prompt = build_user_prompt(files, diff, context);
 
         let request = OpenAIRequest {
             model: self.model.to_api_str(),

@@ -103,10 +103,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let diff = Git::get_staged_diff(&filtered_files)?;
 
-    // Create client using factory pattern
     let client = create_client(model, api_key);
     let mut commit_message = client
-        .generate_commit_message(&filtered_files, &diff)
+        .generate_commit_message(&filtered_files, &diff, cli.context.as_deref())
         .await?;
 
     if cli.edit {

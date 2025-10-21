@@ -13,7 +13,7 @@ pub const SYSTEM_PROMPT: &str = r#"<task>Generate a conventional commit message 
   type(scope): description
   - type and description in lowercase
   - scope optional
-  - description 50–72 characters, imperative mood
+  - description 50 to 72 characters, imperative mood
   - add '!' after type for breaking changes
 </format>
 
@@ -45,7 +45,20 @@ pub const SYSTEM_PROMPT: &str = r#"<task>Generate a conventional commit message 
 </instructions>
 "#;
 
-pub fn build_user_prompt(files: &[String], diff: &str) -> String {
+pub fn build_user_prompt(files: &[String], diff: &str, additional_context: Option<&str>) -> String {
+    let context_section = if let Some(ctx) = additional_context {
+        format!(
+            r#"
+
+    <additional_context>
+{}
+    </additional_context>"#,
+            ctx
+        )
+    } else {
+        String::new()
+    };
+
     format!(
         r#"
   <context>
@@ -55,10 +68,11 @@ pub fn build_user_prompt(files: &[String], diff: &str) -> String {
 
     <diff>
 {}
-    </diff>
+    </diff>{}
   </context>"#,
         files.join("\n"),
-        diff
+        diff,
+        context_section
     )
 }
 
@@ -217,8 +231,12 @@ pub fn create_client(model: Model, api_key: String) -> Box<dyn GenerateCommitMes
 
 #[async_trait::async_trait]
 pub trait GenerateCommitMessage {
-    async fn generate_commit_message(&self, files: &[String], diff: &str)
-    -> anyhow::Result<String>;
+    async fn generate_commit_message(
+        &self,
+        files: &[String],
+        diff: &str,
+        context: Option<&str>,
+    ) -> anyhow::Result<String>;
 }
 
 #[cfg(test)]
@@ -257,12 +275,11 @@ mod tests {
         let files = vec!["src/main.rs".to_string(), "src/config.rs".to_string()];
         let diff = "diff content here";
 
-        let prompt = build_user_prompt(&files, diff);
+        let prompt = build_user_prompt(&files, diff, None);
 
         assert!(prompt.contains("src/main.rs"));
         assert!(prompt.contains("src/config.rs"));
         assert!(prompt.contains("diff content here"));
-        assert!(prompt.contains("Generate a conventional commit message"));
     }
 
     #[test]

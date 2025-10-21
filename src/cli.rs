@@ -55,4 +55,11 @@ pub struct Cli {
         help = "Limit the prompt to the specified files"
     )]
     pub only: Vec<String>,
+
+    #[arg(
+        short,
+        long,
+        help = "Additional context to help generate the commit message"
+    )]
+    pub context: Option<String>,
 }
