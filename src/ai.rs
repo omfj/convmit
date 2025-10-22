@@ -78,18 +78,27 @@ pub fn build_user_prompt(files: &[String], diff: &str, additional_context: Optio
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, clap::ValueEnum)]
 pub enum Model {
+    // Anthropic Models
+    Sonnet4_5,
+    Haiku4_5,
     Opus4_1,
     Opus4,
     Sonnet4,
     Sonnet3_7,
     Haiku3_5,
     Haiku3,
+
+    // OpenAI Models
     Gpt5,
     Gpt5Mini,
     Gpt5Nano,
+
+    // Google Models
     Gemini2_5Pro,
     Gemini2_5Flash,
     Gemini2_5FlashLite,
+
+    // Mistral Models
     MistralMedium3_1,
     MagistralMedium1_1,
     MistralSmall3_2,
@@ -121,22 +130,24 @@ impl FromStr for Model {
 impl Model {
     pub fn all_models() -> Vec<Model> {
         vec![
-            // Claude models
+            // Anthropic models
+            Model::Sonnet4_5,
+            Model::Haiku4_5,
             Model::Opus4_1,
             Model::Opus4,
             Model::Sonnet4,
             Model::Sonnet3_7,
             Model::Haiku3_5,
             Model::Haiku3,
-            // OpenAI models
+            // OpenAI Models
             Model::Gpt5,
             Model::Gpt5Mini,
             Model::Gpt5Nano,
-            // Gemini models
+            // Google Models
             Model::Gemini2_5Pro,
             Model::Gemini2_5Flash,
             Model::Gemini2_5FlashLite,
-            // Mistral models
+            // Mistral Models
             Model::MistralMedium3_1,
             Model::MagistralMedium1_1,
             Model::MistralSmall3_2,
@@ -160,6 +171,8 @@ impl Model {
 
     pub fn to_api_str(&self) -> String {
         let str = match self {
+            Model::Sonnet4_5 => "claude-sonnet-4-5-20250929",
+            Model::Haiku4_5 => "claude-haiku-4-5-20251001",
             Model::Opus4_1 => "claude-opus-4-1-20250805",
             Model::Opus4 => "claude-opus-4-20250514",
             Model::Sonnet4 => "claude-sonnet-4-20250514",
@@ -184,7 +197,9 @@ impl Model {
     pub fn is_claude(&self) -> bool {
         matches!(
             self,
-            Model::Opus4_1
+            Model::Sonnet4_5
+                | Model::Haiku4_5
+                | Model::Opus4_1
                 | Model::Opus4
                 | Model::Sonnet4
                 | Model::Sonnet3_7
