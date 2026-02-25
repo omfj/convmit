@@ -77,7 +77,7 @@ fn test_full_workflow_simulation() {
 
     let models_to_test = vec![
         Model::Sonnet4,
-        Model::Haiku3_5,
+        Model::Haiku4_5,
         Model::Gpt5,
         Model::Gpt5Mini,
         Model::MistralMedium3_1,

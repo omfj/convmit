@@ -84,9 +84,7 @@ pub enum Model {
     Opus4_1,
     Opus4,
     Sonnet4,
-    Sonnet3_7,
-    Haiku3_5,
-    Haiku3,
+    Sonnet4_6,
 
     // OpenAI Models
     Gpt5,
@@ -100,7 +98,7 @@ pub enum Model {
 
     // Mistral Models
     MistralMedium3_1,
-    MagistralMedium1_1,
+    MagistralMedium1_2,
     MistralSmall3_2,
     Ministral8b,
 }
@@ -136,9 +134,7 @@ impl Model {
             Model::Opus4_1,
             Model::Opus4,
             Model::Sonnet4,
-            Model::Sonnet3_7,
-            Model::Haiku3_5,
-            Model::Haiku3,
+            Model::Sonnet4_6,
             // OpenAI Models
             Model::Gpt5,
             Model::Gpt5Mini,
@@ -149,7 +145,7 @@ impl Model {
             Model::Gemini2_5FlashLite,
             // Mistral Models
             Model::MistralMedium3_1,
-            Model::MagistralMedium1_1,
+            Model::MagistralMedium1_2,
             Model::MistralSmall3_2,
             Model::Ministral8b,
         ]
@@ -176,9 +172,8 @@ impl Model {
             Model::Opus4_1 => "claude-opus-4-1-20250805",
             Model::Opus4 => "claude-opus-4-20250514",
             Model::Sonnet4 => "claude-sonnet-4-20250514",
-            Model::Sonnet3_7 => "claude-3-7-sonnet-20250219",
-            Model::Haiku3_5 => "claude-3-5-haiku-20241022",
-            Model::Haiku3 => "claude-3-haiku-20240307",
+            Model::Sonnet4_6 => "claude-sonnet-4-6",
+
             Model::Gpt5 => "gpt-5-2025-08-07",
             Model::Gpt5Mini => "gpt-5-mini-2025-08-07",
             Model::Gpt5Nano => "gpt-5-nano-2025-08-07",
@@ -186,9 +181,9 @@ impl Model {
             Model::Gemini2_5Flash => "gemini-2.5-flash",
             Model::Gemini2_5FlashLite => "gemini-2.5-flash-lite",
             Model::MistralMedium3_1 => "mistral-medium-2508",
-            Model::MagistralMedium1_1 => "magistral-medium-2507",
-            Model::MistralSmall3_2 => "mistral-small-3.2",
-            Model::Ministral8b => "ministral-8b-2410",
+            Model::MagistralMedium1_2 => "magistral-medium-2509",
+            Model::MistralSmall3_2 => "mistral-small-2506",
+            Model::Ministral8b => "ministral-8b-2512",
         };
 
         str.to_string()
@@ -202,9 +197,7 @@ impl Model {
                 | Model::Opus4_1
                 | Model::Opus4
                 | Model::Sonnet4
-                | Model::Sonnet3_7
-                | Model::Haiku3_5
-                | Model::Haiku3
+                | Model::Sonnet4_6
         )
     }
 
@@ -223,7 +216,7 @@ impl Model {
         matches!(
             self,
             Model::MistralMedium3_1
-                | Model::MagistralMedium1_1
+                | Model::MagistralMedium1_2
                 | Model::MistralSmall3_2
                 | Model::Ministral8b
         )
@@ -263,9 +256,8 @@ mod tests {
         assert!(Model::Opus4_1.is_claude());
         assert!(Model::Opus4.is_claude());
         assert!(Model::Sonnet4.is_claude());
-        assert!(Model::Sonnet3_7.is_claude());
-        assert!(Model::Haiku3_5.is_claude());
-        assert!(Model::Haiku3.is_claude());
+        assert!(Model::Sonnet4_6.is_claude());
+        assert!(Model::Haiku4_5.is_claude());
 
         assert!(!Model::Gpt5.is_claude());
         assert!(!Model::Gpt5Mini.is_claude());
@@ -281,9 +273,8 @@ mod tests {
         assert!(!Model::Opus4_1.is_openai());
         assert!(!Model::Opus4.is_openai());
         assert!(!Model::Sonnet4.is_openai());
-        assert!(!Model::Sonnet3_7.is_openai());
-        assert!(!Model::Haiku3_5.is_openai());
-        assert!(!Model::Haiku3.is_openai());
+        assert!(!Model::Sonnet4_6.is_openai());
+        assert!(!Model::Haiku4_5.is_openai());
     }
     #[test]
     fn test_build_prompt() {
@@ -322,7 +313,7 @@ mod tests {
     #[test]
     fn test_model_is_mistral() {
         assert!(Model::MistralMedium3_1.is_mistral());
-        assert!(Model::MagistralMedium1_1.is_mistral());
+        assert!(Model::MagistralMedium1_2.is_mistral());
         assert!(Model::MistralSmall3_2.is_mistral());
         assert!(Model::Ministral8b.is_mistral());
 

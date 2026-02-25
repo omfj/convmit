@@ -19,7 +19,7 @@ impl Default for Config {
             openai_api_key: None,
             gemini_api_key: None,
             mistral_api_key: None,
-            default_model: Some(crate::ai::Model::Haiku3_5),
+            default_model: Some(crate::ai::Model::Haiku4_5),
         }
     }
 }
@@ -137,7 +137,7 @@ impl Config {
     pub fn get_default_model(&self) -> crate::ai::Model {
         self.default_model
             .clone()
-            .unwrap_or(crate::ai::Model::Haiku3_5)
+            .unwrap_or(crate::ai::Model::Haiku4_5)
     }
 
     pub fn set_default_model(&mut self, model: crate::ai::Model) -> Result<()> {
@@ -262,7 +262,7 @@ mod tests {
 
         // Should succeed for Claude models when Claude key is present
         assert!(config.validate_model_config(&Model::Sonnet4).is_ok());
-        assert!(config.validate_model_config(&Model::Haiku3_5).is_ok());
+        assert!(config.validate_model_config(&Model::Haiku4_5).is_ok());
 
         // Should succeed for OpenAI models when OpenAI key is present
         assert!(config.validate_model_config(&Model::Gpt5).is_ok());
@@ -304,7 +304,7 @@ mod tests {
             Some("test-claude-key".to_string())
         );
         assert_eq!(
-            config.get_api_key_for_model(&Model::Haiku3_5),
+            config.get_api_key_for_model(&Model::Haiku4_5),
             Some("test-claude-key".to_string())
         );
 
@@ -436,13 +436,13 @@ mod tests {
     #[test]
     fn test_get_default_model_fallback() {
         let config = create_empty_config();
-        assert_eq!(config.get_default_model(), Model::Haiku3_5);
+        assert_eq!(config.get_default_model(), Model::Haiku4_5);
     }
 
     #[test]
     fn test_get_default_model_with_default() {
         let config = Config::default();
-        assert_eq!(config.get_default_model(), Model::Haiku3_5);
+        assert_eq!(config.get_default_model(), Model::Haiku4_5);
     }
 
     #[test]
