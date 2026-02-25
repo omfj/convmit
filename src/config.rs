@@ -39,7 +39,13 @@ impl Config {
 
         if config_path.exists() {
             let content = fs::read_to_string(&config_path)?;
-            Ok(toml::from_str(&content)?)
+            toml::from_str(&content).map_err(|e| {
+                anyhow::anyhow!(
+                    "Failed to parse config file at {}: {}\n\nFix or delete the file to reset to defaults.",
+                    config_path.display(),
+                    e.message()
+                )
+            })
         } else {
             let config = Self::default();
             config.save()?;
